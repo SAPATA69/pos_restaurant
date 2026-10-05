@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>คิวครัว</h2>
+<ul>
+{% for item in queue %}
+  <li>
+    {{ item.menu_item.name }} x{{ item.quantity }} - โต๊ะ {{ item.order.table.table_number }} ({{ item.status }})
+    <form method="post" action="{{ url_for('kitchen.update_status', item_id=item.id) }}" style="display:inline">
+      <select name="status" onchange="this.form.submit()">
+        <option value="pending" {% if item.status=='pending' %}selected{% endif %}>รอทำ</option>
+        <option value="cooking" {% if item.status=='cooking' %}selected{% endif %}>กำลังทำ</option>
+        <option value="served" {% if item.status=='served' %}selected{% endif %}>เสร็จแล้ว</option>
+      </select>
+    </form>
+  </li>
+{% endfor %}
+</ul>
+{% endblock %}

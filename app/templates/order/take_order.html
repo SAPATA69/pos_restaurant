@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>โต๊ะ {{ table.table_number }}</h2>
+<form method="post">
+  <select name="menu_item_id">
+    {% for m in menu_items %}
+      <option value="{{ m.id }}">{{ m.name }} - {{ m.price }} บาท</option>
+    {% endfor %}
+  </select>
+  <input type="number" name="quantity" value="1" min="1">
+  <button type="submit">เพิ่มรายการ</button>
+</form>
+<h3>รายการที่สั่ง</h3>
+<ul>
+{% for item in order.items %}
+  <li>{{ item.menu_item.name }} x{{ item.quantity }} ({{ item.status }})</li>
+{% endfor %}
+</ul>
+<a href="{{ url_for('billing.bill', order_id=order.id) }}">คิดเงิน</a>
+{% endblock %}

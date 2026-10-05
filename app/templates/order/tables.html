@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>เลือกโต๊ะ</h2>
+<ul>
+{% for t in tables %}
+  <li><a href="{{ url_for('order.take_order', table_id=t.id) }}">โต๊ะ {{ t.table_number }} ({{ t.status }})</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

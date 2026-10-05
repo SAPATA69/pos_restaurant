@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>รายการเมนู</h2>
+<a href="{{ url_for('menu.add_item') }}">+ เพิ่มเมนู</a>
+<ul>
+{% for i in items %}
+  <li>{{ i.name }} - {{ i.price }} บาท ({{ i.category }})</li>
+{% endfor %}
+</ul>
+{% endblock %}

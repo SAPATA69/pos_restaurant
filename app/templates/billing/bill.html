@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>บิล โต๊ะ {{ order.table.table_number }}</h2>
+<ul>
+{% for item in order.items %}
+  <li>{{ item.menu_item.name }} x{{ item.quantity }} = {{ item.menu_item.price * item.quantity }} บาท</li>
+{% endfor %}
+</ul>
+<p><strong>ยอดรวม: {{ total }} บาท</strong></p>
+<form method="post" action="{{ url_for('billing.pay', order_id=order.id) }}">
+  <button type="submit">ชำระเงิน / ปิดบิล</button>
+</form>
+{% endblock %}
