@@ -1,18 +1,1 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>คิวครัว</h2>
-<ul>
-{% for item in queue %}
-  <li>
-    {{ item.menu_item.name }} x{{ item.quantity }} - โต๊ะ {{ item.order.table.table_number }} ({{ item.status }})
-    <form method="post" action="{{ url_for('kitchen.update_status', item_id=item.id) }}" style="display:inline">
-      <select name="status" onchange="this.form.submit()">
-        <option value="pending" {% if item.status=='pending' %}selected{% endif %}>รอทำ</option>
-        <option value="cooking" {% if item.status=='cooking' %}selected{% endif %}>กำลังทำ</option>
-        <option value="served" {% if item.status=='served' %}selected{% endif %}>เสร็จแล้ว</option>
-      </select>
-    </form>
-  </li>
-{% endfor %}
-</ul>
-{% endblock %}
+{% extends 'base.html' %}{% block content %}<div class="d-flex justify-content-between"><h2>คิวครัว</h2><span class="badge text-bg-info align-self-center">{{ queue|length }} รายการ</span></div><div class="row g-3 mt-1">{% for item in queue %}<div class="col-md-6 col-xl-4"><div class="card shadow-sm"><div class="card-body"><div class="d-flex justify-content-between"><h5>{{ item.menu_item.name }} x{{ item.quantity }}</h5><span class="badge text-bg-secondary">#{{ item.order.id }}</span></div><p class="mb-1">{{ item.order.display_location }} · {{ item.created_at.strftime('%H:%M') }}</p>{% if item.option_text %}<small>ตัวเลือก: {{ item.option_text }}</small>{% endif %}{% if item.note %}<small class="d-block">หมายเหตุ: {{ item.note }}</small>{% endif %}<form method="post" action="{{ url_for('kitchen.update_status', item_id=item.id) }}" class="mt-3"><select class="form-select" name="status" onchange="this.form.submit()"><option value="pending" {% if item.status=='pending' %}selected{% endif %}>รอทำ</option><option value="cooking" {% if item.status=='cooking' %}selected{% endif %}>กำลังทำ</option><option value="ready" {% if item.status=='ready' %}selected{% endif %}>ทำเสร็จ</option><option value="served" {% if item.status=='served' %}selected{% endif %}>เสิร์ฟแล้ว</option><option value="paused" {% if item.status=='paused' %}selected{% endif %}>พักรายการ</option><option value="cancelled">ยกเลิก</option><option value="sold_out">อาหารหมด</option></select></form></div></div></div>{% else %}<p>ไม่มีรายการรอทำ</p>{% endfor %}</div>{% endblock %}

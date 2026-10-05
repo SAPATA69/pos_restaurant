@@ -1,9 +1,1 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>เลือกโต๊ะ</h2>
-<ul>
-{% for t in tables %}
-  <li><a href="{{ url_for('order.take_order', table_id=t.id) }}">โต๊ะ {{ t.table_number }} ({{ t.status }})</a></li>
-{% endfor %}
-</ul>
-{% endblock %}
+{% extends 'base.html' %}{% block content %}<div class="d-flex justify-content-between align-items-center mb-3"><h2>รับออเดอร์</h2><a class="btn btn-primary" href="{{ url_for('order.takeaway') }}">+ ซื้อกลับบ้าน</a></div><div class="row g-3">{% for table in tables %}<div class="col-6 col-md-3"><a class="text-decoration-none" href="{{ url_for('order.open_table', table_id=table.id) }}"><div class="card text-center border-{{ 'success' if table.status=='available' else 'warning' }}"><div class="card-body"><h4>โต๊ะ {{ table.table_number }}</h4><span class="badge text-bg-{{ 'success' if table.status=='available' else 'warning' }}">{{ {'available':'ว่าง','occupied':'กำลังใช้งาน','billing':'รอชำระเงิน'}.get(table.status, table.status) }}</span></div></div></a></div>{% endfor %}</div>{% endblock %}

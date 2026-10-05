@@ -1,13 +1,1 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>บิล โต๊ะ {{ order.table.table_number }}</h2>
-<ul>
-{% for item in order.items %}
-  <li>{{ item.menu_item.name }} x{{ item.quantity }} = {{ item.menu_item.price * item.quantity }} บาท</li>
-{% endfor %}
-</ul>
-<p><strong>ยอดรวม: {{ total }} บาท</strong></p>
-<form method="post" action="{{ url_for('billing.pay', order_id=order.id) }}">
-  <button type="submit">ชำระเงิน / ปิดบิล</button>
-</form>
-{% endblock %}
+{% extends 'base.html' %}{% block content %}<h2>ชำระเงิน {{ order.display_location }} #{{ order.id }}</h2><div class="card"><div class="card-body"><ul class="list-group mb-3">{% for item in order.items %}<li class="list-group-item d-flex justify-content-between">{{ item.menu_item.name }} x{{ item.quantity }}<span>{{ '%.2f'|format(item.line_total|float) }} บาท</span></li>{% endfor %}</ul><h3 class="text-end">ยอดรวม {{ '%.2f'|format(total|float) }} บาท</h3><form method="post" action="{{ url_for('billing.pay', order_id=order.id) }}" class="row g-3 mt-2"><div class="col-md-5"><label class="form-label">วิธีชำระเงิน</label><select name="method" class="form-select" id="method"><option value="cash">เงินสด</option><option value="transfer">โอนเงิน</option><option value="qr">QR Payment (ทดลอง)</option></select></div><div class="col-md-5"><label class="form-label">รับเงินมา</label><input class="form-control" name="received_amount" type="number" min="0" step="0.01" value="{{ total }}"></div><div class="col-md-2 d-flex align-items-end"><button class="btn btn-success w-100">ยืนยันชำระเงิน</button></div></form></div></div>{% endblock %}

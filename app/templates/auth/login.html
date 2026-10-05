@@ -1,9 +1,1 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>เข้าสู่ระบบ</h2>
-<form method="post">
-  <input type="text" name="username" placeholder="ชื่อผู้ใช้" required><br>
-  <input type="password" name="password" placeholder="รหัสผ่าน" required><br>
-  <button type="submit">เข้าสู่ระบบ</button>
-</form>
-{% endblock %}
+{% extends 'base.html' %}{% block content %}<div class="row justify-content-center"><div class="col-md-5"><div class="card shadow-sm"><div class="card-body p-4"><h2 class="mb-4">เข้าสู่ระบบ POS</h2><form method="post"><label class="form-label">ชื่อผู้ใช้</label><input class="form-control mb-3" name="username" required><label class="form-label">รหัสผ่าน</label><input class="form-control mb-3" type="password" name="password" required><button class="btn btn-primary w-100">เข้าสู่ระบบ</button></form></div></div></div></div>{% endblock %}

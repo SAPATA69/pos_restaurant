@@ -1,88 +1,61 @@
-# POS ร้านอาหาร + ระบบคิวครัว (Kitchen Order Ticket System)
+# POS ร้านอาหาร + ระบบคิวครัว
 
-## โครงสร้างโปรเจกต์
-```
-pos_restaurant/
-├── app/
-│   ├── __init__.py        # App factory
-│   ├── models.py          # SQLAlchemy models
-│   ├── auth/               # login/logout
-│   ├── menu/                # จัดการเมนู (CRUD)
-│   ├── order/                # เลือกโต๊ะ + รับออเดอร์
-│   ├── kitchen/              # หน้าจอครัว (คิวออเดอร์)
-│   ├── billing/               # คิดเงิน/ปิดบิล
-│   ├── static/
-│   └── templates/
-├── config.py
-├── run.py
-├── seed_db.py              # สร้างตาราง + ข้อมูลตัวอย่าง
-└── requirements.txt
-```
+เว็บแอปพลิเคชันต้นแบบสำหรับโครงงานคณะวิทยาการคอมพิวเตอร์ พัฒนาด้วย Flask และ PostgreSQL รองรับการรับประทานที่ร้านและซื้อกลับบ้าน
 
-## ขั้นตอนติดตั้ง (รันทีละคำสั่ง)
+## ฟังก์ชันหลัก
 
-### 1. ติดตั้ง PostgreSQL (ถ้ายังไม่มี)
-Windows: โหลดจาก https://www.postgresql.org/download/windows/
-Mac: `brew install postgresql`
-Linux: `sudo apt install postgresql`
+- Login แยกบทบาท `admin`, `staff`, `kitchen`
+- จัดการโต๊ะ: ว่าง, กำลังใช้งาน, รอชำระเงิน
+- จัดการเมนูและสถานะพร้อมขาย/อาหารหมด
+- ตัวเลือกเพิ่มเติมและหมายเหตุของรายการอาหาร
+- POS เพิ่มหลายรายการในออเดอร์เดียว
+- คิวครัวเรียงตามเวลาและแยกตามโต๊ะ/ออเดอร์
+- สถานะรายการ: รอทำ, กำลังทำ, ทำเสร็จ, เสิร์ฟแล้ว, พักรายการ, ยกเลิก, อาหารหมด
+- ชำระเงิน: เงินสด, โอนเงิน, QR Payment แบบทดลอง
+- ใบเสร็จและหน้าสำหรับพิมพ์
+- รายงานเมนูขายดีพร้อมตัวกรองวันที่
 
-### 2. สร้างฐานข้อมูล
-```bash
-psql -U postgres
-CREATE DATABASE pos_restaurant;
-\q
-```
+## เทคโนโลยี
 
-### 3. สร้าง virtual environment
+Flask, Flask-SQLAlchemy, Flask-Migrate, PostgreSQL, SQLAlchemy ORM, Jinja2, HTML/CSS/JavaScript และ Bootstrap 5
+
+## การติดตั้ง
+
 ```bash
 python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# Mac/Linux
-source venv/bin/activate
-```
-
-### 4. ติดตั้งแพ็กเกจทั้งหมด
-```bash
+# Windows: venv\\Scripts\\activate
+# Linux/macOS: source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 5. ตั้งค่าการเชื่อมต่อฐานข้อมูล
-แก้ไขใน `config.py` หรือสร้างไฟล์ `.env`:
-```
-DATABASE_URL=postgresql://postgres:รหัสผ่านของคุณ@localhost:5432/pos_restaurant
-SECRET_KEY=your-secret-key
+ตั้งค่า `.env` สำหรับ PostgreSQL:
+
+```env
+DATABASE_URL=postgresql://postgres:รหัสผ่าน@localhost:5432/pos_restaurant
+SECRET_KEY=เปลี่ยนเป็นคีย์ลับของโครงการ
 ```
 
-### 6. สร้างตารางในฐานข้อมูล + ข้อมูลตัวอย่าง
+สร้างฐานข้อมูลและข้อมูลตัวอย่าง:
+
 ```bash
 python seed_db.py
-```
-
-### 7. รันเซิร์ฟเวอร์
-```bash
 python run.py
 ```
-เปิดเบราว์เซอร์ที่ http://127.0.0.1:5000/auth/login
 
-### บัญชีทดสอบ
+หากใช้ Flask-Migrate กับฐานข้อมูลที่มีอยู่แล้ว:
+
+```bash
+flask --app run.py db init
+flask --app run.py db migrate -m "initial POS schema"
+flask --app run.py db upgrade
+```
+
+## บัญชีทดสอบ
+
 | บทบาท | Username | Password |
 |---|---|---|
 | ผู้ดูแลระบบ | admin | admin1234 |
-| พนักงานเสิร์ฟ | staff1 | staff1234 |
+| พนักงาน/แคชเชียร์ | staff1 | staff1234 |
 | ครัว | kitchen1 | kitchen1234 |
 
-## ฟีเจอร์ที่มีในโครงร่างนี้
-- [x] ระบบ Login แยก role (admin/staff/kitchen)
-- [x] จัดการเมนูอาหาร (เพิ่มเมนู)
-- [x] เลือกโต๊ะ + เปิดออเดอร์ + เพิ่มรายการอาหาร
-- [x] หน้าจอครัว (Kitchen Display) แสดงคิว + อัปเดตสถานะ
-- [x] คิดเงิน + ปิดบิล + คืนสถานะโต๊ะเป็นว่าง
-
-## สิ่งที่ยังต้องทำต่อ (ตามแผน)
-- ปรับ UI ให้สวยขึ้น (ตอนนี้เป็น HTML พื้นฐานล้วนๆ)
-- เพิ่มหน้ารายงานยอดขายรายวัน
-- แก้ไข/ลบเมนู (ตอนนี้มีแค่เพิ่ม)
-- ทดสอบ flow ทั้งหมดแล้วจดบันทึกผล/ปัญหาไว้ใช้เขียนบทที่ 4
+โค้ดชุดนี้เป็นต้นแบบสำหรับการนำเสนอและต่อยอด ยังไม่ได้เชื่อมต่อระบบจ่ายเงินหรือเครื่องพิมพ์จริง และยังไม่ได้ Push ขึ้น Git ตามคำขอ
