@@ -7,13 +7,13 @@ from app.models import Order, OrderItem
 kitchen_bp = Blueprint("kitchen", __name__, url_prefix="/kitchen")
 STATUSES = {"pending", "cooking", "ready", "served", "paused", "cancelled", "sold_out"}
 STATUS_LABELS = {"pending": "รอทำ", "cooking": "กำลังทำ", "ready": "พร้อมเสิร์ฟ", "served": "เสิร์ฟแล้ว", "paused": "พักรายการ", "cancelled": "ยกเลิก", "sold_out": "อาหารหมด"}
-
+KITCHEN_ORDER_STATUSES = ("open", "paid")
 @kitchen_bp.route("/")
 @login_required
 @roles_required("admin", "kitchen", "staff")
 def display():
     queue = (OrderItem.query.join(Order)
-             .filter(Order.status == "open", OrderItem.status.notin_(["draft", "served", "cancelled"]))
+             .filter(Order.status.in_(KITCHEN_ORDER_STATUSES), OrderItem.status.notin_(["draft", "served", "cancelled"]))
              .order_by(OrderItem.created_at.asc()).all())
     grouped = {}
     for item in queue:
@@ -24,7 +24,7 @@ def display():
 @login_required
 @roles_required("admin", "kitchen", "staff")
 def queue_api():
-    count = (OrderItem.query.join(Order).filter(Order.status == "open", OrderItem.status.notin_(["draft", "served", "cancelled"])).count())
+    count = (OrderItem.query.join(Order).filter(Order.status.in_(KITCHEN_ORDER_STATUSES), OrderItem.status.notin_(["draft", "served", "cancelled"])).count())
     return jsonify({"count": count})
 
 @kitchen_bp.route("/item/<int:item_id>/status", methods=["POST"])
