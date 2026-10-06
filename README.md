@@ -1,54 +1,30 @@
 # POS ร้านอาหาร + ระบบคิวครัว
 
-เว็บแอปพลิเคชันต้นแบบสำหรับโครงงานคณะวิทยาการคอมพิวเตอร์ พัฒนาด้วย Flask และ PostgreSQL รองรับการรับประทานที่ร้านและซื้อกลับบ้าน
+เว็บแอปพลิเคชันต้นแบบด้วย Flask และ PostgreSQL รองรับนั่งรับประทานที่ร้าน/ซื้อกลับบ้าน, คิวครัว, ตัวเลือกอาหาร, ใบเสร็จ และ QR Payment แบบทดลอง
 
-## ฟังก์ชันหลัก
+## Workflow หลัก
 
-- Login แยกบทบาท `admin`, `staff`, `kitchen`
-- จัดการโต๊ะ: ว่าง, กำลังใช้งาน, รอชำระเงิน
-- จัดการเมนูและสถานะพร้อมขาย/อาหารหมด
-- ตัวเลือกเพิ่มเติมและหมายเหตุของรายการอาหาร
-- POS เพิ่มหลายรายการในออเดอร์เดียว
-- คิวครัวเรียงตามเวลาและแยกตามโต๊ะ/ออเดอร์
-- สถานะรายการ: รอทำ, กำลังทำ, ทำเสร็จ, เสิร์ฟแล้ว, พักรายการ, ยกเลิก, อาหารหมด
-- ชำระเงิน: เงินสด, โอนเงิน, QR Payment แบบทดลอง
-- ใบเสร็จและหน้าสำหรับพิมพ์
-- รายงานเมนูขายดีพร้อมตัวกรองวันที่
+1. พนักงานเพิ่มอาหารลงบิลในสถานะ **ยังไม่ส่งครัว (Draft)**
+2. กด **ส่งรายการใหม่เข้าคิวครัว**
+3. ครัวกด **เริ่มทำ → พร้อมเสิร์ฟ → เสิร์ฟแล้ว**
+4. แคชเชียร์รับชำระเงินและพิมพ์ใบเสร็จ
 
-## เทคโนโลยี
+## QR Payment
 
-Flask, Flask-SQLAlchemy, Flask-Migrate, PostgreSQL, SQLAlchemy ORM, Jinja2, HTML/CSS/JavaScript และ Bootstrap 5
+โหมด `QR ทดลอง` สร้าง QR Code ในหน้า checkout ด้วย QR payload สำหรับการสาธิตเท่านั้น ไม่ได้เชื่อมต่อธนาคารจริง หากต้องการใช้จริงให้ตั้งค่า `PROMPTPAY_ID` เป็นหมายเลขบัญชี/พร้อมเพย์ของร้าน และพัฒนาตัวสร้าง Thai QR Payment ตามมาตรฐานธนาคารก่อนใช้งานจริง
 
-## การติดตั้ง
+## ตั้งค่าและรัน
 
 ```bash
 python -m venv venv
 # Windows: venv\\Scripts\\activate
 # Linux/macOS: source venv/bin/activate
 pip install -r requirements.txt
-```
-
-ตั้งค่า `.env` สำหรับ PostgreSQL:
-
-```env
-DATABASE_URL=postgresql://postgres:รหัสผ่าน@localhost:5432/pos_restaurant
-SECRET_KEY=เปลี่ยนเป็นคีย์ลับของโครงการ
-```
-
-สร้างฐานข้อมูลและข้อมูลตัวอย่าง:
-
-```bash
 python seed_db.py
 python run.py
 ```
 
-หากใช้ Flask-Migrate กับฐานข้อมูลที่มีอยู่แล้ว:
-
-```bash
-flask --app run.py db init
-flask --app run.py db migrate -m "initial POS schema"
-flask --app run.py db upgrade
-```
+เปิด `http://localhost:5000` หรือ `http://localhost:5000/auth/login`
 
 ## บัญชีทดสอบ
 
@@ -58,4 +34,12 @@ flask --app run.py db upgrade
 | พนักงาน/แคชเชียร์ | staff1 | staff1234 |
 | ครัว | kitchen1 | kitchen1234 |
 
-โค้ดชุดนี้เป็นต้นแบบสำหรับการนำเสนอและต่อยอด ยังไม่ได้เชื่อมต่อระบบจ่ายเงินหรือเครื่องพิมพ์จริง และยังไม่ได้ Push ขึ้น Git ตามคำขอ
+## การตั้งค่าเสริมผ่าน `.env`
+
+```env
+SECRET_KEY=change-me
+DATABASE_URL=postgresql://postgres:password@localhost:5432/pos_restaurant
+RESTAURANT_NAME=ครัวอุบล POS
+RESTAURANT_PHONE=โทร. 08X-XXX-XXXX
+PROMPTPAY_ID=0812345678
+```
