@@ -71,6 +71,22 @@ def take_order(order_id):
         return redirect(url_for("order.take_order", order_id=order.id))
     return render_template("order/take_order.html", order=order, menu_items=MenuItem.query.filter_by(is_available=True).order_by(MenuItem.category, MenuItem.name).all())
 
+@order_bp.route("/<int:order_id>/item/<int:item_id>/remove", methods=["POST"])
+@login_required
+@roles_required("admin", "staff")
+def remove_draft_item(order_id, item_id):
+    order = Order.query.get_or_404(order_id)
+    item = OrderItem.query.filter_by(id=item_id, order_id=order.id).first_or_404()
+    if order.status != "open" or item.status != "draft":
+        flash("ลบได้เฉพาะรายการที่ยังไม่ส่งเข้าครัวเท่านั้น", "warning")
+    else:
+        db.session.delete(item)
+        db.session.flush()
+        order.recalculate_total()
+        db.session.commit()
+        flash("ลบรายการที่ยังไม่ส่งครัวแล้ว", "success")
+    return redirect(url_for("order.take_order", order_id=order.id))
+
 @order_bp.route("/<int:order_id>/send", methods=["POST"])
 @login_required
 @roles_required("admin", "staff")

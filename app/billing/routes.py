@@ -13,7 +13,8 @@ def bill(order_id):
     order = Order.query.get_or_404(order_id)
     if order.payment: return redirect(url_for("billing.receipt", order_id=order.id))
     order.recalculate_total(); db.session.commit()
-    if not order.items:
+    billable_items = [item for item in order.items if item.status not in {"cancelled", "sold_out"}]
+    if not billable_items:
         flash("ยังไม่มีรายการอาหารในออเดอร์", "warning")
         return redirect(url_for("order.take_order", order_id=order.id))
     return render_template("billing/bill.html", order=order, total=order.total_amount)
@@ -24,6 +25,9 @@ def pay(order_id):
     order = Order.query.get_or_404(order_id)
     if order.payment: return redirect(url_for("billing.receipt", order_id=order.id))
     order.recalculate_total()
+    if order.total_amount <= 0:
+        flash("ไม่สามารถชำระเงินออเดอร์ที่ไม่มียอดเรียกเก็บได้", "warning")
+        return redirect(url_for("order.take_order", order_id=order.id))
     method = request.form.get("method", "cash")
     if method not in VALID_METHODS:
         flash("วิธีชำระเงินไม่ถูกต้อง", "danger"); return redirect(url_for("billing.bill", order_id=order.id))

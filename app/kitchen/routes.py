@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import login_required
 from app import db
 from app.auth.permissions import roles_required
@@ -33,7 +33,25 @@ def queue_api():
 def update_status(item_id):
     item = OrderItem.query.get_or_404(item_id)
     status = request.form.get("status")
-    if status in STATUSES:
+    if status == "cancelled":
+        flash("กรุณาใช้ปุ่มยกเลิกคิวเพื่อให้ระบบตรวจสอบยอดบิล", "warning")
+    elif status in STATUSES:
         item.status = status
         db.session.commit()
+    return redirect(url_for("kitchen.display"))
+
+@kitchen_bp.route("/item/<int:item_id>/cancel", methods=["POST"])
+@login_required
+@roles_required("admin", "kitchen", "staff")
+def cancel_queue_item(item_id):
+    item = OrderItem.query.get_or_404(item_id)
+    if item.order.payment or item.order.status == "paid":
+        flash("ออเดอร์นี้ชำระเงินแล้ว หากต้องการยกเลิกต้องดำเนินการคืนเงินก่อน", "warning")
+    elif item.status in {"served", "cancelled"}:
+        flash("รายการนี้เสิร์ฟหรือยกเลิกไปแล้ว", "warning")
+    else:
+        item.status = "cancelled"
+        item.order.recalculate_total()
+        db.session.commit()
+        flash("ยกเลิกรายการออกจากคิวแล้ว และปรับยอดบิลเรียบร้อย", "success")
     return redirect(url_for("kitchen.display"))

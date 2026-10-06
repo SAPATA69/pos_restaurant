@@ -54,7 +54,9 @@ class Order(db.Model):
     payment = db.relationship("Payment", backref="order", uselist=False, cascade="all, delete-orphan")
     @property
     def display_location(self): return f"โต๊ะ {self.table.table_number}" if self.table else "ซื้อกลับบ้าน"
-    def recalculate_total(self): self.total_amount = sum((item.line_total for item in self.items), Decimal("0.00"))
+    def recalculate_total(self):
+        billable_items = [item for item in self.items if item.status not in {"cancelled", "sold_out"}]
+        self.total_amount = sum((item.line_total for item in billable_items), Decimal("0.00"))
 
 class OrderItem(db.Model):
     __tablename__ = "order_items"
